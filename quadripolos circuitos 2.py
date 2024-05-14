@@ -88,7 +88,6 @@ def LinhaDeTransmissao(Comprimento):
     Y2 = 1 / C_fasorial
     return CircuitoPI(Z, Y1, Y2)
    
-#acho q n precisa da cascata
 def Cascata(*matrizes):
     resultado = matrizes[0]
     for matriz in matrizes[1:]:
@@ -150,7 +149,7 @@ CargaZ2 = AdmitanciaShunt(1/Zc2)
 
 CargaZ3 = AdmitanciaShunt(1/Zc3)
 
-#-=-=-=-=-=-=-=-=-=Matriz de transmissao-=-=-=-=-=-=-=-=-=#
+#-=-=-=-=-=-=-=-=-=Simulacao da linha sem alterações-=-=-=-=-=-=-=-=-=#
 
 ABCD = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
                          CargaZ1, LT3, T2, CargaZ2, LT4, T3, CargaZ3)
@@ -172,7 +171,7 @@ Eqs = np.array([[A + (B /Zc3), 0], [-(C+(D/Zc3)), 1]])
 
 Igualdade = np.array([69e3*np.sqrt(2), 0])
 
-solucao = np.linalg.solve(Eqs, Igualdade) #o erro esta aqui
+solucao = np.linalg.solve(Eqs, Igualdade) 
 
 print(f'Para a carga Z3, V = {round(np.abs(solucao[0]),4)} ∠ {np.angle(solucao[0])} V\n')
 
@@ -220,6 +219,7 @@ solucao3 = np.linalg.solve(Eqs3, Igualdade)
 print(f'Para a carga Z1, V = {np.abs(solucao3[0])} ∠ {np.angle(solucao3[0])} V \n')
 
 print(f'Para a carga Z1, I = {np.abs(solucao3[0]/Zc1)} ∠  {np.angle(solucao3[0]/Zc1)} A \n') 
+
 
 #-=-=-=-=-=-=-=-=-=Simulacao com ajuste de tap -=-=-=-=-=-=-=-=-=#
 
