@@ -117,6 +117,24 @@ def QuadripoloParalelo(matriz1, matriz2):
     return matriz_Paralelo
 
 
+def Solver(Quadripolo, carga):
+
+    A, B, C, D = Quadripolo[0][0], Quadripolo[0][1], Quadripolo[1][0], Quadripolo[1][1]
+
+    Equacoes = np.array([[A + (B / carga), 0], [-(C+(D/carga)), 1]])
+
+    Igualdade = np.array([69e3, 0])
+
+    Solucao =  np.linalg.solve(Equacoes, Igualdade) 
+
+    print(f'V = {round(np.abs(Solucao[0]),2)} ∠ {round(np.angle(Solucao[0])*180/np.pi,2)}° V \n')
+
+    print(f'I = {round(np.abs(Solucao[0]/carga),2)} ∠  {round(np.angle(Solucao[0]/carga)*180/np.pi,2)}° A \n') 
+
+    CorrenteGerador = f'Para o gerador I, = {round(np.abs(Solucao[1]),2)} ∠ {round(np.angle(Solucao[1])*180/np.pi,2)}° A'
+
+    return CorrenteGerador
+
 #-=-=-=-=-=-=-=-=-=Quadripolos-=-=-=-=-=-=-=-=-=#
 
 #impedancia em serie com a fonte
@@ -151,85 +169,50 @@ CargaZ3 = AdmitanciaShunt(1/Zc3)
 
 #-=-=-=-=-=-=-=-=-=Simulacao da linha sem alterações-=-=-=-=-=-=-=-=-=#
 
+Igualdade = np.array([69e3, 0])
+
 ABCD = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
                          CargaZ1, LT3, T2, CargaZ2, LT4, T3, CargaZ3)
+
+#print(Solver(ABCD, Zc3)) #-> retorna a corrente no gerador
+
 print('-=-'*10, 'Linha de transmissão original', '-=-'*10, '\n')
 
 print('Matriz da linha de transmissão: \n', ABCD,'\n')
 
-#-=-=-=-=-=-=-=-=-=solucao do sitema para Z3 -=-=-=-=-=-=-=-=-=#
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z1 -=-=-=-=-=-=-=-=-=#
 
-A = ABCD[0][0]
+ABCD_Z1 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,))
 
-B = ABCD[0][1]
+print('Para Z1: \n')
 
-C = ABCD[1][0]
-
-D = ABCD[1][1]
-
-Eqs = np.array([[A + (B /Zc3), 0], [-(C+(D/Zc3)), 1]])
-
-Igualdade = np.array([69e3*np.sqrt(2), 0])
-
-solucao = np.linalg.solve(Eqs, Igualdade) 
-
-print(f'Para a carga Z3, V = {round(np.abs(solucao[0]),4)} ∠ {np.angle(solucao[0])} V\n')
-
-print(f'Para a carga Z3, I = {np.abs(solucao[0]/Zc3)} ∠  {np.angle(solucao[0]/Zc3)} A \n') 
+Solver(ABCD_Z1, Zc1)
 
 #-=-=-=-=-=-=-=-=-=solucao do sitema para Z2 -=-=-=-=-=-=-=-=-=#
 
 ABCD_Z2 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
-                         CargaZ1, LT3, T2, CargaZ2)
+                         CargaZ1, LT3, T2)
 
-A2 = ABCD_Z2[0][0]
+print('Para Z2: \n')
 
-B2 = ABCD_Z2[0][1]
+Solver(ABCD_Z2, Zc2)
 
-C2 = ABCD_Z2[1][0]
-
-D2 = ABCD_Z2[1][1]
-
-Eqs2 = np.array([[A2 + (B2 /Zc2), 0], [-(C2+(D2/Zc2)), 1]])
-
-solucao2 = np.linalg.solve(Eqs2, Igualdade)
-
-print(f'Para a carga Z2, V = {np.abs(solucao2[0])} ∠ {np.angle(solucao2[0])} V \n')
-
-print(f'Para a carga Z2, I = {np.abs(solucao2[0]/Zc2)} ∠  {np.angle(solucao2[0]/Zc2)} A \n') #
-
-
-#-=-=-=-=-=-=-=-=-=solucao do sitema para Z1 -=-=-=-=-=-=-=-=-=#
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z3 -=-=-=-=-=-=-=-=-=#
 
 ABCD_Z3 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
-                         CargaZ1)
+                         CargaZ1, LT3, T2, CargaZ2, LT4, T3)
 
-A3 = ABCD_Z3[0][0]
+print('Para Z3: \n')
 
-B3 = ABCD_Z3[0][1]
-
-C3 = ABCD_Z3[1][0]
-
-D3 = ABCD_Z3[1][1]
-
-Eqs3 = np.array([[A3 + (B3 /Zc1), 0], [-(C3+(D3/Zc1)), 1]])
-
-solucao3 = np.linalg.solve(Eqs3, Igualdade)
-
-print(f'Para a carga Z1, V = {np.abs(solucao3[0])} ∠ {np.angle(solucao3[0])} V \n')
-
-print(f'Para a carga Z1, I = {np.abs(solucao3[0]/Zc1)} ∠  {np.angle(solucao3[0]/Zc1)} A \n') 
-
+Solver(ABCD_Z3, Zc3)
 
 #-=-=-=-=-=-=-=-=-=Simulacao com ajuste de tap -=-=-=-=-=-=-=-=-=#
 
+T1_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT1), TransformadorIdeal(69, 493.95889))
 
+T2_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT2), TransformadorIdeal(500, 227.718))
 
-T1_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT1), TransformadorIdeal(69, 347.65))
-
-T2_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT2), TransformadorIdeal(500, 225.16))
-
-T3_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT3), TransformadorIdeal(230, 67.45))
+T3_tap = np.dot(CircuitoT(Z1, Z2, 1/ZT3), TransformadorIdeal(230, 68.099))
 
 ABCD_tap = Cascata(serie, T1_tap, QuadripoloParalelo(LT1, LT2,), 
                          CargaZ1, LT3, T2_tap, CargaZ2, LT4, T3_tap, CargaZ3)
@@ -238,63 +221,31 @@ print('-=-'*10, 'Linha de transmissão com ajuste de tap', '-=-'*10, '\n')
 
 print('Matriz da linha de transmissão: \n', ABCD_tap,'\n')
 
-A_tap = ABCD_tap[0][0]
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z1 -=-=-=-=-=-=-=-=-=#
 
-B_tap = ABCD_tap[0][1]
+ABCD_tap_Z1 = Cascata(serie, T1_tap, QuadripoloParalelo(LT1, LT2,))
 
-C_tap = ABCD_tap[1][0]
+print('Para Z1 com ajuste de tap: \n')
 
-D_tap = ABCD_tap[1][1]
+Solver(ABCD_tap_Z1, Zc1)
 
-Eqs_tap = np.array([[A_tap + (B_tap /Zc3), 0], [-(C_tap+(D_tap/Zc3)), 1]])
-
-solucao_tap = np.linalg.solve(Eqs_tap, Igualdade)
-
-print(f'Para a carga Z3 com ajuste de tap, V = {np.abs(solucao_tap[0])} ∠ {np.angle(solucao_tap[0])} V \n')
-
-print(f'Para a carga Z3 com ajuste de tap, I = {np.abs(solucao_tap[0]/Zc3)} ∠  {np.angle(solucao_tap[0]/Zc3)} A \n') 
-
-#-=-=-=-=-=-=-=-= Z2 tap -=-=-=-=-=-=-=-=-=-=-=-=
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z2 -=-=-=-=-=-=-=-=-=#
 
 ABCD_tap_Z2 = Cascata(serie, T1_tap, QuadripoloParalelo(LT1, LT2,), 
-                         CargaZ1, LT3, T2_tap, CargaZ2)
+                         CargaZ1, LT3, T2_tap)
 
-A_tap_Z2 = ABCD_tap_Z2[0][0]
+print('Para Z2 com ajuste de tap: \n')
 
-B_tap_Z2 = ABCD_tap_Z2[0][1]
+Solver(ABCD_tap_Z2, Zc2)
 
-C_tap_Z2 = ABCD_tap_Z2[1][0]
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z3 -=-=-=-=-=-=-=-=-=#
 
-D_tap_Z2 = ABCD_tap_Z2[1][1]
+ABCD_tap_Z3 = Cascata(serie, T1_tap, QuadripoloParalelo(LT1, LT2,), 
+                         CargaZ1, LT3, T2_tap, CargaZ2, LT4, T3_tap)
 
-Eqs_tap_Z2 = np.array([[A_tap_Z2 + (B_tap_Z2 /Zc2), 0], [-(C_tap_Z2+(D_tap_Z2/Zc2)), 1]])
+print('Para Z3 com ajuste de tap: \n')
 
-solucao_tap_Z2 = np.linalg.solve(Eqs_tap_Z2, Igualdade)
-
-print(f'Para a carga Z2 com ajuste de tap, V = {np.abs(solucao_tap_Z2[0])} ∠ {np.angle(solucao_tap_Z2[0])} V \n')
-
-print(f'Para a carga Z2 com ajuste de tap, I = {np.abs(solucao_tap_Z2[0]/Zc2)} ∠  {np.angle(solucao_tap_Z2[0]/Zc2)} A \n')
-
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Z1 tap -=-=-=-=-=-=-=-=-=
-
-ABCD_tap_Z1 = Cascata(serie, T1_tap, QuadripoloParalelo(LT1, LT2,), 
-                         CargaZ1)
-
-A_tap_Z1 = ABCD_tap_Z1[0][0]
-
-B_tap_Z1 = ABCD_tap_Z1[0][1]
-
-C_tap_Z1 = ABCD_tap_Z1[1][0]
-
-D_tap_Z1 = ABCD_tap_Z1[1][1]
-
-Eqs_tap_Z1 = np.array([[A_tap_Z1 + (B_tap_Z1 /Zc1), 0], [-(C_tap_Z1+(D_tap_Z1/Zc1)), 1]])
-
-solucao_tap_Z1 = np.linalg.solve(Eqs_tap_Z1, Igualdade)
-
-print(f'Para a carga Z1 com ajuste de tap, V = {np.abs(solucao_tap_Z1[0])} ∠ {np.angle(solucao_tap_Z1[0])} V \n')
-
-print(f'Para a carga Z1 com ajuste de tap, I = {np.abs(solucao_tap_Z1[0]/Zc1)} ∠  {np.angle(solucao_tap_Z1[0]/Zc1)} A \n')
+Solver(ABCD_tap_Z3, Zc3)
 
 #-=-=-=-=-=-=-=-=-=Simulacao com reatores -=-=-=-=-=-=-=-=-=#
 
@@ -311,62 +262,28 @@ print('-=-'*10, 'Linha de transmissão com associação de reatores em paralelo 
 
 print('Matriz da linha de transmissão: \n', ABCD_reator,'\n')
 
-A_reator = ABCD_reator[0][0]
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z1 -=-=-=-=-=-=-=-=-=#
 
-B_reator = ABCD_reator[0][1]
+ABCD_reator_Z1 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), CargaZ1)
 
-C_reator = ABCD_reator[1][0]
+print('Para Z1 com associuação de reator em paralelo: \n')
 
-D_reator = ABCD_reator[1][1]
+Solver(ABCD_reator_Z1, Zc1)
 
-Eqs_reator = np.array([[A_reator + (B_reator /Zc3), 0], [-(C_reator+(D_reator/Zc3)), 1]])
-
-Igualdade_reator = np.array([69e3*np.sqrt(2), 0])
-
-solucao_reator = np.linalg.solve(Eqs_reator, Igualdade_reator) 
-
-print(f'Para a carga Z3 com reator em paralelo, V = {round(np.abs(solucao_reator[0]),4)} ∠ {np.angle(solucao_reator[0])} V \n')
-
-print(f'Para a carga Z3 com reator paralelo, I = {np.abs(solucao_reator[0]/Zc3)} ∠  {np.angle(solucao_reator[0]/Zc3)} A \n') 
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z2 -=-=-=-=-=-=-=-=-=#
 
 ABCD_reator_Z2 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
                          CargaZ1, reator1, LT3, T2, CargaZ2, reator2)
 
-A_reator_Z2 = ABCD_reator_Z2[0][0]
+print('Para Z2 com associuação de reator em paralelo: \n')
 
-B_reator_Z2 = ABCD_reator_Z2[0][1]
+Solver(ABCD_reator_Z2, Zc2)
 
-C_reator_Z2 = ABCD_reator_Z2[1][0]
+#-=-=-=-=-=-=-=-=-=solucao do sitema para Z3 -=-=-=-=-=-=-=-=-=#
 
-D_reator_Z2 = ABCD_reator_Z2[1][1]
+ABCD_reator_Z3 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
+                         CargaZ1, reator1, LT3, T2, CargaZ2, reator2, LT4, T3, CargaZ3)
 
-Eqs_reator_Z2 = np.array([[A_reator_Z2 + (B_reator_Z2 /Zc2), 0], [-(C_reator_Z2+(D_reator_Z2/Zc2)), 1]])
+print('Para Z3 com associuação de reator em paralelo: \n')
 
-Igualdade_reator_Z2 = np.array([69e3*np.sqrt(2), 0])
-
-solucao_reator_Z2 = np.linalg.solve(Eqs_reator_Z2, Igualdade_reator_Z2) 
-
-print(f'Para a carga Z2 com reator em paralelo, V = {round(np.abs(solucao_reator_Z2[0]),4)} ∠ {np.angle(solucao_reator_Z2[0])} V \n')
-
-print(f'Para a carga Z2 com reator paralelo, I = {np.abs(solucao_reator_Z2[0]/Zc2)} ∠  {np.angle(solucao_reator_Z2[0]/Zc2)} A \n') 
-
-ABCD_reator_Z1 = Cascata(serie, T1, QuadripoloParalelo(LT1, LT2,), 
-                         CargaZ1, reator1)
-
-A_reator_Z1 = ABCD_reator_Z1[0][0]
-
-B_reator_Z1 = ABCD_reator_Z1[0][1]
-
-C_reator_Z1 = ABCD_reator_Z1[1][0]
-
-D_reator_Z1 = ABCD_reator_Z1[1][1]
-
-Eqs_reator_Z1 = np.array([[A_reator_Z1 + (B_reator_Z1 /Zc2), 0], [-(C_reator_Z1+(D_reator_Z1/Zc1)), 1]])
-
-Igualdade_reator_Z1 = np.array([69e3*np.sqrt(2), 0])
-
-solucao_reator_Z1 = np.linalg.solve(Eqs_reator_Z1, Igualdade_reator_Z1) 
-
-print(f'Para a carga Z1 com reator em paralelo, V = {round(np.abs(solucao_reator_Z1[0]),4)} ∠ {np.angle(solucao_reator_Z1[0])} V \n')
-
-print(f'Para a carga Z1 com reator paralelo, I = {np.abs(solucao_reator_Z1[0]/Zc1)} ∠  {np.angle(solucao_reator_Z1[0]/Zc1)} A \n') 
+Solver(ABCD_reator_Z3, Zc3)
