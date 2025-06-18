@@ -1,0 +1,59 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[brazilian]{babel}
+\usepackage[document]{ragged2e} %\justifying
+\usepackage[top=3cm,bottom=2cm,right=2cm,left=3cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, dsfont, mathtools, gensymb}
+\usepackage{caption} %legenda de tabelas
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{setspace} %para setar espaçamento horizontal e vertical%
+\usepackage{changepage} %ajuste do tamanho de tabelas e figuras (\adjustwidth)
+\usepackage{makecell} %formatar celulas de uma tabela (\thead)
+\usepackage{quoting} %citação
+\usepackage{times} %fonte: times new roman
+\usepackage{tocloft} %sumário
+\setlength{\cftsecnumwidth}{4em} % ajuste o espaçamento para o número da seção
+\setlength{\cftsubsecnumwidth}{5em} % ajuste o espaçamento para o número da subseção
+\usepackage{indentfirst} % adiciona recuo na primeira linha de cada seção
+\usepackage{hyperref}
+\begin{document}
+
+\begin{center}
+{\fontsize{18pt}{27pt} \selectfont
+Universidade Federal de Campina Grande \\
+Centro de Ciências e Tecnologia \\
+Unidade acadêmica de Física\\
+Laboratório de Física Experimental I\\}
+\vspace*{\fill}
+{\fontsize{20pt}{1.5pt} \selectfont
+titulo_f
+\vspace*{\fill}}
+\end{center}
+\mbox{}
+\vfill
+{\fontsize{14pt}{16pt} \selectfont
+Aluno: nome_f \hspace{1cm} \hfill Matrícula: matricula_f \\
+Turma:   turma_f       \hspace{1cm} Professor(a): professor_f \hspace{1cm}    \hfill    Nota: \\
+\begin{center}
+Campina Grande, ano_f.
+\end{center}}
+
+
+\thispagestyle{empty}
+	
+\newpage
+	
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\justifying
+\onehalfspacing
+\pagebreak
+\pagenumbering{arabic}
+
+
+
+\end{document}

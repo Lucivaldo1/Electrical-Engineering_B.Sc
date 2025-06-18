@@ -1,0 +1,17 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+ \begin{table}[h] 
+ \caption{Tabela II-A} 
+ \centering 
+ %%opcional \begin{adjustwidth}{-2cm}{} 
+ \begin{tabular}{|*{4}{c|}}\hline 
+ 
+\thead{2} & \thead{3} & \thead{4} & \thead{5} \\ \hline 
+ 
+\thead{4} & \thead{6} & \thead{8} & \thead{10} \\ \hline 
+ 
+\end{tabular} 
+ \caption*{Fonte: Dados obtidos experimentalmente}
+ %%opcional\end{adjustwidth}{}
+ \label{tabII-A}
+ \end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

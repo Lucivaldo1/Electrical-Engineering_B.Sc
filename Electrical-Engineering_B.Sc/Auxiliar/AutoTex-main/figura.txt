@@ -1,0 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+\centering
+\caption{titulo_f}
+\includegraphics[scale=1]{arquivo_f} %altere o fator scale para alterar o tamanho da figura
+\caption*{Fonte: fonte_f}
+\label{label_f}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,23 @@
+	module divisorFrequencia (
+    input wire clockOriginal,         
+    output reg clock1Hz 
+);
+    reg [24:0] contador; 
+	 
+	 initial begin
+	 contador = 0;
+	 clock1Hz = 0;
+	 end
+	 
+	 //um sinal de 2Hz possui duas bordas de subida em um período
+
+    always @(posedge clockOriginal) begin       
+          if (contador == 25000000) begin
+               contador = 0;
+               clock1Hz = ~clock1Hz;
+            end 
+			 else begin
+                contador = contador + 1;
+          end
+    end
+endmodule
